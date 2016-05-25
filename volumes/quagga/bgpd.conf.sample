@@ -3,8 +3,7 @@ hostname $HOSTNAME
 password zebra
 
 router bgp 65000
-  bgp router-id 172.18.0.100
-  network 192.168.1.0/24
-!
+  bgp router-id container-ip
+  network 172.18.0.0/24
 
 log file /var/log/quagga/bgpd.log
