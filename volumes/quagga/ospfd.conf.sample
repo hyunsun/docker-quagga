@@ -9,8 +9,9 @@ password zebra
 interface eth0
 !
 router ospf
-  ospf router-id container-ip
-  network container-ip/prefix area 0
+  ospf router-id serial-ip
+  network serial-ip/serial-prefix area 0
+! network internal-ip/internal-prefix area 0
 ! default-information originate always metric 10 
 ! add more configs here
 !

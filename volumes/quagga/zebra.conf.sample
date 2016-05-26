@@ -3,6 +3,6 @@ hostname container-name
 password zebra
 !
 interface eth0
-  ip address container-ip/prefix
+  ip address serial-ip/serial-prefix
   ip forwarding
 !
