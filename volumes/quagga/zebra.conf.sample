@@ -2,3 +2,7 @@
 hostname container-name
 password zebra
 !
+interface eth0
+  ip address 172.18.0.3/24
+  ip forwarding
+!

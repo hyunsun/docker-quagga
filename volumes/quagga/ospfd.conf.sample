@@ -6,7 +6,11 @@
 hostname container-name
 password zebra
 !
+interface eth0
+!
 router ospf
   ospf router-id container-ip
+  network 172.18.0.0/24 area 0
+  default-information originate always metric 10
 !
 log file /var/log/quagga/ospfd.log
