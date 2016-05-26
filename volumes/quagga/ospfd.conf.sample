@@ -10,7 +10,8 @@ interface eth0
 !
 router ospf
   ospf router-id container-ip
-  network 172.18.0.0/24 area 0
-  default-information originate always metric 10
+  network container-ip/prefix area 0
+! default-information originate always metric 10 
+! add more configs here
 !
 log file /var/log/quagga/ospfd.log
