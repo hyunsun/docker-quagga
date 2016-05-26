@@ -19,6 +19,11 @@ CONTAINER_IP_CIDR=$2
 CONTAINER_IP=$(echo $CONTAINER_IP_CIDR | cut -d'/' -f 1)
 PREFIX=$(echo $CONTAINER_IP_CIDR | cut -d'/' -f 2)
 
+# clean up existing container with same name and IP
+sudo docker stop $CONTAINER_HOSTNAME
+sudo docker rm $CONTAINER_HOSTNAME
+sudo ovs-vsctl del-port $CONTAINER_IP
+
 cp ~/docker-quagga/volumes/quagga/zebra.conf.sample ~/docker-quagga/volumes/quagga/zebra.conf
 sed -i 's/container-name/'${CONTAINER_HOSTNAME}'/g' ~/docker-quagga/volumes/quagga/zebra.conf
 sed -i 's/container-ip/'${CONTAINER_IP}'/g' ~/docker-quagga/volumes/quagga/zebra.conf
@@ -31,4 +36,4 @@ sed -i 's/prefix/'${PREFIX}'/g' ~/docker-quagga/volumes/quagga/ospfd.conf
 
 
 sudo docker run --net='none' --privileged --name $CONTAINER_HOSTNAME --hostname $CONTAINER_HOSTNAME -d -v ~/docker-quagga/volumes/quagga:/etc/quagga quagga
-sudo ~/docker-quagga/pipework br-ex -i eth0 $CONTAINER_HOSTNAME $CONTAINER_IP_CIDR
+sudo ~/docker-quagga/pipework br-ex -i eth0 -l $CONTAINER_IP $CONTAINER_HOSTNAME $CONTAINER_IP_CIDR
