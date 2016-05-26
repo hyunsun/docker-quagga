@@ -1,0 +1,12 @@
+! -*- ospf -*-
+!
+! OSPFd sample configuration file
+!
+!
+hostname container-name
+password zebra
+!
+router ospf
+  ospf router-id container-ip
+!
+log file /var/log/quagga/ospfd.log
