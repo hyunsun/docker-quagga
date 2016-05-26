@@ -23,7 +23,7 @@ BRIDGE_NAME=${3:-br-ex}
 # clean up existing container with same name and IP
 sudo docker stop $CONTAINER_HOSTNAME
 sudo docker rm $CONTAINER_HOSTNAME
-sudo ovs-vsctl del-port $CONTAINER_IP
+sudo ovs-vsctl del-port quagga
 
 cp ~/docker-quagga/volumes/quagga/zebra.conf.sample ~/docker-quagga/volumes/quagga/zebra.conf
 sed -i 's/container-name/'$CONTAINER_HOSTNAME'/g' ~/docker-quagga/volumes/quagga/zebra.conf
@@ -42,5 +42,5 @@ sed -i 's/container-name/'$CONTAINER_HOSTNAME'/g' ~/docker-quagga/volumes/quagga
 sed -i 's/container-ip/'$CONTAINER_IP'/g' ~/docker-quagga/volumes/quagga/ospfd.conf
 sed -i 's/prefix/'$PREFIX'/g' ~/docker-quagga/volumes/quagga/ospfd.conf
 
-#sudo docker run --net='none' --privileged --name $CONTAINER_HOSTNAME --hostname $CONTAINER_HOSTNAME -d -v ~/docker-quagga/volumes/quagga:/etc/quagga quagga
-#sudo ~/docker-quagga/pipework $BRIDGE_NAME -i eth0 -l quagga $CONTAINER_HOSTNAME $CONTAINER_IP_CIDR
+sudo docker run --net='none' --privileged --name $CONTAINER_HOSTNAME --hostname $CONTAINER_HOSTNAME -d -v ~/docker-quagga/volumes/quagga:/etc/quagga quagga
+sudo ~/docker-quagga/pipework $BRIDGE_NAME -i eth0 -l quagga $CONTAINER_HOSTNAME $CONTAINER_IP_CIDR
