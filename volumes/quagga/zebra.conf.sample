@@ -3,6 +3,8 @@ hostname container-name
 password zebra
 !
 interface eth0
-  ip address serial-ip/serial-prefix
+  ip address container-ip/prefix
   ip forwarding
+!
+fpm connection ip onos-ip port 2620
 !

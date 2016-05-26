@@ -4,9 +4,10 @@ MAINTAINER hyunsun.moon@gmail.com
 RUN apt-get update
 RUN apt-get install -qy --no-install-recommends supervisor quagga telnet
 
+# 179/tcp - bgp port
 # 2601/tcp - zebra management port
 # 2604/tcp - ospfd management port
-EXPOSE 2601 2604
+EXPOSE 179 2601 2604
 
 VOLUME /etc/quagga
 

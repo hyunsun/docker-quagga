@@ -1,0 +1,18 @@
+! -*- bgp -*-
+!
+! BGPd sample configuration file
+!
+!
+hostname container-name
+password zebra
+!
+router bgp my-as-num
+  bgp router-id container-ip
+  timers bgp 3 9
+  neighbor neighbor-ip remote-as remote-as-num
+  neighbor neighbor-ip ebgp-multihop
+  neighbor neighbor-ip timers connect 5
+  neighbor neighbor-ip advertisement-interval 5
+! neighbor neighbor-ip default-originate
+!
+log file /var/log/quagga/bgpd.log
