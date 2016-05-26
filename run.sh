@@ -42,5 +42,5 @@ sed -i 's/container-name/'$CONTAINER_HOSTNAME'/g' ~/docker-quagga/volumes/quagga
 sed -i 's/container-ip/'$CONTAINER_IP'/g' ~/docker-quagga/volumes/quagga/ospfd.conf
 sed -i 's/prefix/'$PREFIX'/g' ~/docker-quagga/volumes/quagga/ospfd.conf
 
-sudo docker run --net='none' --privileged --name $CONTAINER_HOSTNAME --hostname $CONTAINER_HOSTNAME -d -v ~/docker-quagga/volumes/quagga:/etc/quagga quagga
+sudo docker run --net='none' --privileged --name $CONTAINER_HOSTNAME --hostname $CONTAINER_HOSTNAME -d -v ~/docker-quagga/volumes/quagga:/usr/etc quagga-fpm
 sudo ~/docker-quagga/pipework $BRIDGE_NAME -i eth0 -l quagga $CONTAINER_HOSTNAME $CONTAINER_IP_CIDR

@@ -1,0 +1,205 @@
+diff --git a/fpm/fpm.h b/fpm/fpm.h
+index 96f05f4..9a1dbf2 100644
+--- a/fpm/fpm.h
++++ b/fpm/fpm.h
+@@ -87,6 +87,14 @@
+  * table(s) when it reconnects.
+  */
+ 
++/*
++ * Local host as a default server for fpm connection 
++ */
++#define FPM_DEFAULT_IP              (htonl (INADDR_LOOPBACK))
++
++/*
++ * default port for fpm connections
++ */
+ #define FPM_DEFAULT_PORT 2620
+ 
+ /*
+@@ -270,4 +278,10 @@ fpm_msg_ok (const fpm_msg_hdr_t *hdr, size_t len)
+   return 1;
+ }
+ 
++// tcp maximum range
++#define TCP_MAX_PORT   65535
++
++// tcp minimum range 
++#define TCP_MIN_PORT   1
++
+ #endif /* _FPM_H */
+diff --git a/zebra/zebra_fpm.c b/zebra/zebra_fpm.c
+index 292dbb6..2b1a32b 100644
+--- a/zebra/zebra_fpm.c
++++ b/zebra/zebra_fpm.c
+@@ -153,6 +153,7 @@ typedef struct zfpm_glob_t_
+ 
+   zfpm_state_t state;
+ 
++  in_addr_t   fpm_server;
+   /*
+    * Port on which the FPM is running.
+    */
+@@ -1126,7 +1127,10 @@ zfpm_connect_cb (struct thread *t)
+ #ifdef HAVE_STRUCT_SOCKADDR_IN_SIN_LEN
+   serv.sin_len = sizeof (struct sockaddr_in);
+ #endif /* HAVE_STRUCT_SOCKADDR_IN_SIN_LEN */
+-  serv.sin_addr.s_addr = htonl (INADDR_LOOPBACK);
++  if (!zfpm_g->fpm_server)
++    serv.sin_addr.s_addr = htonl (INADDR_LOOPBACK);
++  else 
++    serv.sin_addr.s_addr = (zfpm_g->fpm_server);
+ 
+   /*
+    * Connect to the FPM.
+@@ -1517,6 +1521,76 @@ DEFUN (clear_zebra_fpm_stats,
+   return CMD_SUCCESS;
+ }
+ 
++/*
++ * update fpm connection information 
++ */
++DEFUN ( fpm_remote_ip, 
++        fpm_remote_ip_cmd,
++        "fpm connection ip A.B.C.D port <1-65535>",
++        "fpm connection remote ip and port\n"
++        " remote ip A.B.C.D\n"
++        " Enter ip ")
++{
++
++   in_addr_t fpm_server;
++   uint32_t port_no;
++
++   fpm_server = inet_addr (argv[0]);
++   if (fpm_server == INADDR_NONE)
++     return CMD_ERR_INCOMPLETE;
++
++   port_no = atoi (argv[1]);
++   if (port_no < TCP_MIN_PORT || port_no > TCP_MAX_PORT)
++     return CMD_ERR_INCOMPLETE;
++
++   zfpm_g->fpm_server = fpm_server;
++   zfpm_g->fpm_port = port_no;
++
++
++   return CMD_SUCCESS;
++}
++
++DEFUN ( no_fpm_remote_ip, 
++        no_fpm_remote_ip_cmd,
++        "no fpm connection ip A.B.C.D port <1-65535>",
++        "fpm connection remote ip and port\n"
++        "Connection\n"
++        " remote ip A.B.C.D\n"
++        " Enter ip ")
++{
++   if (zfpm_g->fpm_server != inet_addr (argv[0]) || 
++              zfpm_g->fpm_port !=  atoi (argv[1]))
++       return CMD_ERR_NO_MATCH;
++
++   zfpm_g->fpm_server = FPM_DEFAULT_IP;
++   zfpm_g->fpm_port = FPM_DEFAULT_PORT;
++
++   return CMD_SUCCESS;
++}
++
++
++/**
++ * fpm_remote_srv_write 
++ *
++ * Module to write remote fpm connection 
++ *
++ * Returns ZERO on success.
++ */
++
++int fpm_remote_srv_write (struct vty *vty )
++{
++   struct in_addr in;
++
++   in.s_addr = zfpm_g->fpm_server;
++
++   if (zfpm_g->fpm_server != FPM_DEFAULT_IP || 
++          zfpm_g->fpm_port != FPM_DEFAULT_PORT)
++      vty_out (vty,"fpm connection ip %s port %d%s", inet_ntoa (in),zfpm_g->fpm_port,VTY_NEWLINE);
++
++   return 0;
++}
++
++
+ /**
+  * zfpm_init
+  *
+@@ -1544,6 +1618,15 @@ zfpm_init (struct thread_master *master, int enable, uint16_t port)
+   zfpm_g->sock = -1;
+   zfpm_g->state = ZFPM_STATE_IDLE;
+ 
++  if (!zfpm_g->fpm_server)
++     zfpm_g->fpm_server = FPM_DEFAULT_IP;
++
++  if (!port)
++    port = FPM_DEFAULT_PORT;
++
++  zfpm_g->fpm_port = port;
++
++
+   /*
+    * Netlink must currently be available for the Zebra-FPM interface
+    * to be enabled.
+@@ -1560,16 +1643,13 @@ zfpm_init (struct thread_master *master, int enable, uint16_t port)
+ 
+   install_element (ENABLE_NODE, &show_zebra_fpm_stats_cmd);
+   install_element (ENABLE_NODE, &clear_zebra_fpm_stats_cmd);
++  install_element (CONFIG_NODE, &fpm_remote_ip_cmd);
++  install_element (CONFIG_NODE, &no_fpm_remote_ip_cmd);
+ 
+   if (!enable) {
+     return 1;
+   }
+ 
+-  if (!port)
+-    port = FPM_DEFAULT_PORT;
+-
+-  zfpm_g->fpm_port = port;
+-
+   zfpm_g->obuf = stream_new (ZFPM_OBUF_SIZE);
+   zfpm_g->ibuf = stream_new (ZFPM_IBUF_SIZE);
+ 
+diff --git a/zebra/zserv.c b/zebra/zserv.c
+index e26c8ca..b8903cf 100644
+--- a/zebra/zserv.c
++++ b/zebra/zserv.c
+@@ -1916,6 +1916,24 @@ static struct cmd_node forwarding_node =
+   1
+ };
+ 
++#ifdef HAVE_FPM
++/* function to write the fpm config info */
++static int 
++config_write_fpm (struct vty *vty)
++{
++  return 
++     fpm_remote_srv_write (vty);
++}
++
++/* Zebra node  */
++static struct cmd_node zebra_node = 
++{
++  ZEBRA_NODE,
++  "",
++  1
++};
++#endif
++
+ 
+ /* Initialisation of zebra and installation of commands. */
+ void
+@@ -1927,6 +1945,9 @@ zebra_init (void)
+   /* Install configuration write function. */
+   install_node (&table_node, config_write_table);
+   install_node (&forwarding_node, config_write_forwarding);
++#ifdef HAVE_FPM
++  install_node (&zebra_node, config_write_fpm);
++#endif
+ 
+   install_element (VIEW_NODE, &show_ip_forwarding_cmd);
+   install_element (ENABLE_NODE, &show_ip_forwarding_cmd);
