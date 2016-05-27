@@ -6,13 +6,13 @@
 hostname container-name
 password zebra
 !
-router bgp 65100
-  bgp router-id 172.18.0.100
+router bgp 65101
+  bgp router-id 172.18.0.101
   timers bgp 3 9
-  neighbor 172.18.0.101 remote-as 65101
-  neighbor 172.18.0.101 ebgp-multihop
-  neighbor 172.18.0.101 timers connect 5
-  neighbor 172.18.0.101 advertisement-interval 5
-  neighbor neighbor-ip default-originate
+  neighbor 172.18.0.100 remote-as 65100
+  neighbor 172.18.0.100 ebgp-multihop
+  neighbor 172.18.0.100 timers connect 5
+  neighbor 172.18.0.100 advertisement-interval 5
+! neighbor neighbor-ip default-originate
 !
 log file /var/log/quagga/bgpd.log
