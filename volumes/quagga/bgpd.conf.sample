@@ -6,8 +6,8 @@
 hostname container-name
 password zebra
 !
-router bgp 65101
-  bgp router-id 172.18.0.101
+router bgp 65100
+  bgp router-id 172.18.0.100
   timers bgp 3 9
   neighbor 172.18.0.101 remote-as 65101
   neighbor 172.18.0.101 ebgp-multihop
