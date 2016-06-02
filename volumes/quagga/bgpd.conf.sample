@@ -14,5 +14,6 @@ router bgp 65100
   neighbor 172.18.0.101 timers connect 5
   neighbor 172.18.0.101 advertisement-interval 5
 ! neighbor 172.18.0.101 default-originate
+! network 192.168.0.0/24
 !
 log file /var/log/quagga/bgpd.log

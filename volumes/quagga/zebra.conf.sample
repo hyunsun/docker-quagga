@@ -2,9 +2,5 @@
 hostname container-name
 password zebra
 !
-interface eth0
-  ip address container-ip/prefix
-  ip forwarding
-!
-fpm connection ip 10.203.255.221 port 2620
+!fpm connection ip 10.203.255.221 port 2620
 !
