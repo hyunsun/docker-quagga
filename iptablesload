@@ -1,0 +1,5 @@
+#!/bin/sh
+if [ "$IFACE" = eth0 ]; then
+  iptables-restore < /etc/iptables.rules
+fi
+exit 0

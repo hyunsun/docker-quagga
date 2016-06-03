@@ -2,7 +2,7 @@ FROM ubuntu:14.04
 MAINTAINER hyunsun.moon@gmail.com
 
 RUN apt-get update
-RUN apt-get install -qy --no-install-recommends telnet build-essential gawk wget texinfo supervisor
+RUN apt-get install -qy --no-install-recommends telnet build-essential gawk wget texinfo supervisor iptables
 
 # Patch Quagga to support FPM
 ADD change.diff /tmp/change.diff
