@@ -31,6 +31,6 @@ sudo docker stop $CONTAINER_HOSTNAME
 sudo docker rm $CONTAINER_HOSTNAME
 sudo ovs-vsctl del-port quagga
 
-sudo docker run --privileged --cap-add=NET_ADMIN --cap-add=NET_RAW --name $CONTAINER_HOSTNAME --hostname $CONTAINER_HOSTNAME -d -v ~/docker-quagga/volumes/quagga:/usr/etc quagga-fpm
+sudo docker run --privileged --cap-add=NET_ADMIN --cap-add=NET_RAW --name $CONTAINER_HOSTNAME --hostname $CONTAINER_HOSTNAME -d -v ~/docker-quagga/volumes/quagga:/usr/etc hyunsun/quagga-fpm
 sudo ~/docker-quagga/pipework $BRIDGE_NAME -i eth1 -l quagga $CONTAINER_HOSTNAME $ETH1_IP_CIDR $ETH1_MAC
-sudo docker exec -d $CONTAINER_HOSTNAME iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+#sudo docker exec -d $CONTAINER_HOSTNAME iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
