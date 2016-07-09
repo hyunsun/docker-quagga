@@ -34,8 +34,8 @@ echo && $curl -sS -X POST $app_url/org.onosproject.netcfghostprovider/active
 echo && $curl -sS -X POST $app_url/org.onosproject.vrouter/active
 
 # Push network config
-echo && echo && echo "Push network-cfg.json"
-$curl -X POST -H "Content-Type: application/json" $conf_url -d @network-cfg.json
+echo && echo && echo "Push network config"
+$curl -X POST -H "Content-Type: application/json" $conf_url -d @vrouter.json
 
 # Set br-router bridge controller to ONOS
 echo "Set controller of br-router to $onos"
