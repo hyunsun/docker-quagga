@@ -31,15 +31,16 @@ until $($curl -o /dev/null -s --fail -X POST $app_url/org.onosproject.drivers/ac
 done
 echo "Done"
 
+# Push network config
+echo && echo "Push network config : vrouter.json"
+$curl -X POST -H "Content-Type: application/json" $conf_url -d @vrouter.json
+
 # Activate applications
-echo && echo "Activate ONOS apps"
+echo "Activate ONOS apps"
 $curl -X POST $app_url/org.onosproject.drivers/active
 echo && $curl -sS -X POST $app_url/org.onosproject.openflow/active
 echo && $curl -sS -X POST $app_url/org.onosproject.netcfghostprovider/active
 echo && $curl -sS -X POST $app_url/org.onosproject.vrouter/active
 
-# Push network config
-echo && echo && echo "Push network config"
-$curl -X POST -H "Content-Type: application/json" $conf_url -d @vrouter.json
-
-echo "Finished setup ONOS $onos!"
+echo && echo && echo "Finished setup ONOS!"
+echo "Access ONOS with 'ssh -p 8101 karaf@$onos' password 'karaf'"
