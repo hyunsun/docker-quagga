@@ -20,7 +20,8 @@ else
 fi
 
 curl="curl --user onos:rocks"
-conf_url="http://$onos:8181/onos/v1/network/configuration"
+netcfg_url="http://$onos:8181/onos/v1/network/configuration"
+cfg_url="http://$onos:8181/onos/v1/configuration/org.onosproject.net.flow.impl.FlowRuleManager"
 app_url="http://$onos:8181/onos/v1/applications"
 
 ssh-keygen -f "/home/$(whoami)/.ssh/known_hosts" -R [$onos]:8101
@@ -32,8 +33,13 @@ done
 echo "Done"
 
 # Push network config
-echo && echo "Push network config : vrouter.json"
-$curl -X POST -H "Content-Type: application/json" $conf_url -d @vrouter.json
+echo && echo "Push network config"
+$curl -X POST -H "Content-Type: application/json" $netcfg_url -d @network-cfg.json
+
+# Enable extraneous flow rules
+echo "Enable extraneous flow rules"
+$curl -X POST -H "Content-Type: application/json" $cfg_url -d @component-cfg.json
+
 
 # Activate applications
 echo "Activate ONOS apps"
