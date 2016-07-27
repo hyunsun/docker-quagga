@@ -1,6 +1,0 @@
-!
-hostname container-name
-password zebra
-!
-!fpm connection ip 10.203.255.221 port 2620
-!
