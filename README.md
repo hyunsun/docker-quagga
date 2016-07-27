@@ -2,7 +2,8 @@ FPM enabled Quagga Docker image
 https://hub.docker.com/r/hyunsun/quagga-fpm/
 
 Here's an example command to bring up the container with quagga-fpm image.
-Replace VOLUME to where the Quagga config files are.
+Replace VOLUME to where the Quagga config files are located.
 ```
-sudo docker run --privileged --cap-add=NET_ADMIN --cap-add=NET_RAW -d -v [VOLUME]:/etc/quagga hyunsun/quagga-fpm
+$ export VOLUME=~/docker-quagga/volumes/quagga
+$ sudo docker run --privileged -d -v $VOLUME:/etc/quagga hyunsun/quagga-fpm
 ```
